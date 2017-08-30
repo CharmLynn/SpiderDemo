@@ -9,11 +9,22 @@ class ContentParser(object):
         if url is None or http_cont is None:
             return None
         soup  = BeautifulSoup(http_cont,"html.parser",from_encoding='utf-8')
-        newurls = self._get_new_url(url,soup)
+        # newurls = self._get_new_url(url,soup)
         newdata = self._get_new_data(url,soup)
-        return newurls,newdata
+        return newdata
 
-    def _get_new_url(self, url, soup):
+    def get_new_url(self,orgin_url,http_content):
+
+        soup  = BeautifulSoup(http_content,"html.parser",from_encoding='utf-8')
+        new_urls = set()
+        links =  soup.find_all('a',target="_blank",href=re.compile(r"/item/.+"))
+        for link in links:
+            new_url  = link['href']
+            new_full_url = urlparse.urljoin(orgin_url,new_url)
+            new_urls.add(new_full_url)
+        return new_urls
+
+    def _get_new_url(self,url,soup):
 
         new_urls = set()
         links =  soup.find_all('a',target="_blank",href=re.compile(r"/item/.+"))
